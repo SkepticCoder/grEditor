@@ -1,0 +1,42 @@
+toolbar:
+
+file
+{
+	new
+	save
+	load
+}
+
+mode
+{
+	move
+	insert text
+	insert arrow
+}
+
+
+
+node properties:
+
+	id
+	node script
+
+
+
+
+
+global properties:
+
+dialog
+{
+	title
+	author
+	description
+}
+
+view
+{
+	font
+	font size
+	zoom
+}

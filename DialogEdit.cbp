@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Dialog Editor" />
+		<Option makefile_is_custom="1" />
+		<Option pch_mode="2" />
+		<Option compiler="tdm_gcc_44_sjlj" />
+		<Build>
+			<Target title="Release">
+				<Option output="..\release\DialogEdit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\" />
+				<Option type="0" />
+				<Option compiler="tdm_gcc_44_sjlj" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-static-libgcc" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="$(#qt4)\qt\bin\qmake.exe" />
+					<Mode after="always" />
+				</ExtraCommands>
+				<Environment>
+					<Variable name="make" value="mingw32-make" />
+				</Environment>
+				<MakeCommands>
+					<Build command="$make -f $makefile $target" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make distclean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile $target" />
+					<SilentBuild command="$make -s -f $makefile $target" />
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="$(#qt4.include)" />
+			<Add directory="$(#qt4.include)\QtGui" />
+		</Compiler>
+		<Linker>
+			<Add library="QtCore4" />
+			<Add library="QtGui4" />
+			<Add directory="$(#qt4.lib)" />
+		</Linker>
+		<Unit filename="src\dialogitem.cpp" />
+		<Unit filename="src\dialogitem.h" />
+		<Unit filename="src\dialogjoint.cpp" />
+		<Unit filename="src\dialogjoint.h" />
+		<Unit filename="src\dialogscene.cpp" />
+		<Unit filename="src\dialogscene.h" />
+		<Unit filename="src\main.cpp" />
+		<Unit filename="src\mainwindow.cpp" />
+		<Unit filename="src\mainwindow.h" />
+		<Unit filename="src\wmstyle.cpp" />
+		<Unit filename="src\wmstyle.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
