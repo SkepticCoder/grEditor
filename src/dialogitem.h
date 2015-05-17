@@ -29,7 +29,7 @@ public:
 
 	void addJoint(DialogJoint *joint);
 	void removeJoint(DialogJoint *joint);
-	void removeJoints();
+    void removeJoints();
 
 	int type() const { return Type; }
 

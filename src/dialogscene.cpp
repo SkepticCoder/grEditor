@@ -91,7 +91,7 @@ void DialogScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 		textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
 		textItem->setZValue(1000.0);
 		connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
-		connect(textItem, SIGNAL(selectedChange(QGraphicsItem*)), this, SIGNAL(itemSelected(QGraphicsItem*)));
+//		connect(textItem, SIGNAL(selectedChange(QGraphicsItem*)), this, SIGNAL(itemSelected(QGraphicsItem*)));
 		addItem(textItem);
 //		textItem->setDefaultTextColor(myTextColor);
 		textItem->setPos(mouseEvent->scenePos());

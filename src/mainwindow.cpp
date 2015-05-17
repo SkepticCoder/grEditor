@@ -32,8 +32,8 @@ MainWindow::MainWindow()
 	scene->setSceneRect(QRectF(0, 0, 5000, 5000));
 	connect(scene, SIGNAL(textInserted(QGraphicsTextItem*)),
 			this, SLOT(textInserted(QGraphicsTextItem*)));
-	connect(scene, SIGNAL(itemSelected(QGraphicsTextItem*)),
-			this, SLOT(itemSelected(QGraphicsTextItem*)));
+    /* connect(scene, SIGNAL(itemSelected(QGraphicsTextItem*)),
+            this, SLOT(itemSelected(QGraphicsTextItem*))); */
 	createToolbars();
 
 	scene->setBackgroundBrush(QPixmap(":/res/bg.png"));
@@ -144,17 +144,7 @@ void MainWindow::itemSelected(DialogItem *textItem)
 void MainWindow::about()
 {
 	QMessageBox::about(this, tr("About Dialog Editor"),
-					   tr("<p><b>Dialog Graph Editor</b>, the QT-based dialog creation tool.</p>"
-//						  "<ul>"
-//						  "<li> Create the text nodes and drag them."
-//						  "<li> Connect the nodes with joints."
-//						  "<li> Red ones are opponent's, blue ones are yours."
-//						  "<li> Read the code for file format understanding."
-//						  "</ul>"
-						  "<p>By Peter Rudenko, distributed under the MIT license.</p>"
-						  "<p>See <b>readme.htm</b> for more info.</p>"
-						  "<p>And remember - <b>save often.<b></p>"
-						  "<p align=right>2011, Izhevsk</p>"));
+                       tr("<p><b>Dialog Graph Editor</b>, the QT-based dialog creation tool.</p>"));
 }
 
 void MainWindow::createToolBox()
@@ -454,7 +444,7 @@ void MainWindow::load()
 				textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
 				textItem->setZValue(1000.0);
 				connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
-				connect(textItem, SIGNAL(selectedChange(QGraphicsItem*)), this, SIGNAL(itemSelected(QGraphicsItem*)));
+//				connect(textItem, SIGNAL(selectedChange(QGraphicsItem*)), this, SIGNAL(itemSelected(QGraphicsItem*)));
 				scene->addItem(textItem);
 				textItem->setPos(pos);
 				textItem->setPlainText(text);
