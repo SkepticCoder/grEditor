@@ -10,6 +10,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QToolBox>
+#include <QtWidgets/QToolBar>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QToolButton>
@@ -324,17 +325,23 @@ void MainWindow::createToolbars()
 	linePointerButton->setCheckable(true);
 	linePointerButton->setIcon(QIcon(":/res/~joint.png"));
 	linePointerButton->setStatusTip(tr("Link dialog nodes"));
+    QToolButton *customButton = new QToolButton;
+    customButton->setCheckable(true);
+    customButton->setIcon(QIcon(":/res/~insert.png"));
+    customButton->setStatusTip(tr("Insert custom dialog node"));
 
 	pointerTypeGroup = new QButtonGroup(this);
 	pointerTypeGroup->addButton(nodeButton, int(DialogScene::InsertText));
 	pointerTypeGroup->addButton(pointerButton, int(DialogScene::MoveItem));
 	pointerTypeGroup->addButton(linePointerButton, int(DialogScene::InsertLine));
+    pointerTypeGroup->addButton(customButton, int(DialogScene::InsertCustom));
 	connect(pointerTypeGroup, SIGNAL(buttonClicked(int)), this, SLOT(pointerGroupClicked(int)));
 
 	pointerToolbar = addToolBar(tr("Pointer type"));
 	pointerToolbar->addWidget(pointerButton);
 	pointerToolbar->addWidget(nodeButton);
 	pointerToolbar->addWidget(linePointerButton);
+    pointerToolbar->addWidget(customButton);
 }
 
 
