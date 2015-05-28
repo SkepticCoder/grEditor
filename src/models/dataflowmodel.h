@@ -3,6 +3,7 @@
 
 #include <QtGlobal>
 #include <QObject>
+#include "../dfd.hpp"
 #include "modellistener.h"
 
 QT_BEGIN_NAMESPACE
@@ -15,7 +16,7 @@ class Vertex;
 class DataFlowModel : public ModelListener
 {
     Q_OBJECT
-
+    DFD<std::string, std::string> dfd;
 public:
     DataFlowModel();
 

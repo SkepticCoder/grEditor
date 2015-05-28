@@ -3,7 +3,7 @@
 #####################################
 
 CONFIG -= debug
-CONFIG += windows
+CONFIG += windows c++11
 DESTDIR = ../release
 OBJECTS_DIR = ./obj
 MOC_DIR = ./obj/moc
@@ -23,7 +23,8 @@ HEADERS	    =   wmstyle.h \
     src/controllers/datacontroller.h \
     src/models/dataflowmodel.h \
     src/models/vertex.h \
-    src/models/modellistener.h
+    src/models/modellistener.h \
+    src/dfd.hpp
 SOURCES	    =   wmstyle.cpp \
 		mainwindow.cpp \
 		main.cpp \
