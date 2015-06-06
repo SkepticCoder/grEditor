@@ -4,6 +4,7 @@
 
 #include <QtWidgets/QGraphicsTextItem>
 #include <QPen>
+#include "dfd.hpp"
 
 QT_BEGIN_NAMESPACE
 class QFocusEvent;

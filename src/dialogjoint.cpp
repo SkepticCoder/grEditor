@@ -50,19 +50,37 @@ void DialogJoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
 	qreal arrowSize = 17;
 	painter->setPen(myPen);
 	painter->setBrush(myColor);
-
-	// јнтиалиасинг рулит
     painter->setRenderHint(QPainter::Antialiasing);
-    //painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
-	QLineF centerLine(myStartItem->boundingRect().center() + myStartItem->pos(),
-						myEndItem->boundingRect().center() + myEndItem->pos());
+    QPointF start = myStartItem->boundingRect().center() + myStartItem->pos();
+    QPointF end = myEndItem->boundingRect().center() + myEndItem->pos();
+    QLineF centerLine(start, end);
+    {
+        QPainterPath path;
+        path.moveTo(start);
+        path.lineTo(end);
+        QPointF point = path.pointAtPercent(0.5);
+        qreal angle = path.angleAtPercent(0.5);
+        QFontMetrics fm(painter->font());
+        QString str = "edge";
 
-	// ѕолигоны ограничивающих тест рамок
+        painter->save();
+        if((angle > 90) && (angle < 270)) {
+            painter->translate(point);
+            painter->rotate(180 - angle);
+            painter->drawText(QPoint(-fm.width(str) / 2, -myPen.width()), str);
+        } else {
+            painter->translate(point);
+            painter->rotate(-angle);
+            painter->drawText(QPoint(-fm.width(str) / 2, -myPen.width()), str);
+        }
+
+        painter->restore();
+    }
+
 	QPolygonF startPolygon = myStartItem->shape().toFillPolygon();
 	QPolygonF endPolygon = myEndItem->shape().toFillPolygon();
 
-	// “очки пересечений
 	QPointF ip1 = getIntersection(centerLine, endPolygon, myEndItem->pos());
 	QPointF ip2 = getIntersection(centerLine, startPolygon, myStartItem->pos());
 
@@ -92,14 +110,6 @@ void DialogJoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
 	}
 
 }
-
-
-// Private
-
-
-// ¬озвращает точку пересечени€ линии с полигоном.
-// —итуацию, когда они не пересекаютс€, не рассматривает, т.к. в контексте
-// ее использовани€ таких случаев в принципе не возникнет никогда вообще никак.
 
 QPointF DialogJoint::getIntersection(QLineF line, QPolygonF poly, QPointF offset)
 {

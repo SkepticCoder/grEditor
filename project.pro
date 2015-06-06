@@ -20,20 +20,12 @@ HEADERS	    =   wmstyle.h \
 		dialogitem.h \
 		dialogjoint.h \
 		dialogscene.h \
-    src/controllers/datacontroller.h \
-    src/models/dataflowmodel.h \
-    src/models/vertex.h \
-    src/models/modellistener.h \
     src/dfd.hpp
 SOURCES	    =   wmstyle.cpp \
 		mainwindow.cpp \
 		main.cpp \
 		dialogitem.cpp \
 		dialogjoint.cpp \
-		dialogscene.cpp \
-    src/controllers/datacontroller.cpp \
-    src/models/dataflowmodel.cpp \
-    src/models/vertex.cpp \
-    src/models/modellistener.cpp
+		dialogscene.cpp
 RESOURCES   =	project.qrc
 RC_FILE     =   res/icon.rc

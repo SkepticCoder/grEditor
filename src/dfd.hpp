@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <utility>
 
 template<class T, class U> class DFD
 {
@@ -12,29 +13,40 @@ public:
     class edge;
 
     DFD(){}
-    node& createNode(const std::string name, const T& value);
+    template<class V> node& createNode(const std::string name, V&& value) {
+        std::shared_ptr<node> node = std::make_shared(name, std::forward<V>(value));
+        nodes.insert({name, node});
+        return *node;
+    }
+
     edge& linkNodes(const node& from, const node& to, const std::string& name, const U& value);
+
 private:
-    std::map<std::string, std::shared_ptr<DFD::node>> nodes;
-    std::map<std::string, std::shared_ptr<DFD::edge>> edges;
+    std::multimap<std::string, std::shared_ptr<DFD::node>> nodes;
 };
 
 template<class T, class U> class DFD<T, U>::node
 {
-    int id;
-    std::string name;
+    friend class DFD<T, U>;
+    std::string _name;
     T value;
     std::multimap<std::string, std::shared_ptr<DFD::edge>> out_edges;
     std::multimap<std::string, std::weak_ptr<DFD::edge>> in_edges;
-public:
-    node(const std::string& name, const T& value): name(name), value(value)
+private:
+    template<class V> node(const std::string& name, V&& value): _name(name), value(std::forward<V>(value))
     {}
-    std::shared_ptr<DFD::edge> link(std::shared_ptr<DFD::node> other, const std::string& name, const U& value) {
+public:
+    std::shared_ptr<DFD::edge> link(const DFD::node& other, const std::string& name, const U& value) {
         std::shared_ptr<DFD::edge> edge = std::make_shared(name, value);
+        edge->link(this, other);
         out_edges.insert({name, value});
         other->addInputEdge(edge);
         return edge;
     }
+    const std::string& name = _name;
+    const T& getValue() const { return value; }
+    T& getValue() { return value; }
+private:
     void addInputEdge(std::shared_ptr<DFD::edge> edge) {
         std::weak_ptr<DFD::edge> in = edge;
         in_edges.insert({edge.getName(), in});
@@ -43,21 +55,30 @@ public:
 
 template<class T, class U> class DFD<T, U>::edge
 {
-    std::string name;
+    friend class DFD<T, U>;
+    std::string _name;
     U value;
     DFD::node* left;
-    std::weak_ptr<DFD::node> right;
-public:
-    edge(const std::string& name, const U& value): name(name), value(value)
+    DFD::node* right;
+private:
+    template<class V> edge(const std::string& name, V&& value): _name(name), value(std::forward<V>(value))
     {}
-    void link(DFD::node* from, std::shared_ptr<DFD::node> to) {
+public:
+    void link(DFD::node* from, DFD::node* to) {
         left = from;
         right = to;
     }
-    const std::string& getName() const {
-        return name;
-    }
+    const std::string& name = _name;
+    const U& getValue() const { return value; }
+    U& getValue() { return value; }
+    DFD::node& start() { return *left; }
+    const DFD::node& start() const { return *left; }
+    DFD::node& end() { return *right; }
+    const DFD::node& end() const { return *right; }
 };
 
-#endif // DFD_HPP
+template<class T, class U> typename DFD<T, U>::edge& DFD<T, U>::linkNodes(const DFD<T, U>::node& from, const DFD<T, U>::node& to, const std::string& name, const U& value) {
+    return *from.link(to, name, value);
+}
 
+#endif // DFD_HPP

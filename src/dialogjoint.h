@@ -3,6 +3,7 @@
 #define DIALOGJOINT_H
 
 #include <QtWidgets/QGraphicsLineItem>
+#include "dfd.hpp"
 
 #include "dialogitem.h"
 
@@ -40,8 +41,7 @@ public slots:
     void updatePosition();
 
 protected:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-               QWidget *widget = 0);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
 private:
 	QPointF getIntersection(QLineF line, QPolygonF poly, QPointF offset);

@@ -57,6 +57,7 @@ private:
     QGraphicsLineItem *line;
     QFont myFont;
     DialogItem *textItem;
+    DFD<QString, QString> dfd;
 };
 
 #endif

@@ -13,8 +13,7 @@ DialogItem::DialogItem(QGraphicsItem *parent)
 	setDefaultTextColor(QColor(10, 10, 50, 200));
 }
 
-void DialogItem::paint(QPainter *painter,
-				const QStyleOptionGraphicsItem *option, QWidget *widget = 0)
+void DialogItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0)
 {
 
 	QColor color = (joints.count() <= 1) ? QColor(70, 70, 250, 75) : QColor(250, 70, 70, 55);
@@ -22,8 +21,6 @@ void DialogItem::paint(QPainter *painter,
     painter->setRenderHint(QPainter::Antialiasing);
 	painter->setPen(QPen(color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 
-//	painter->fillRect(0, 0, boundingRect().width(), boundingRect().height(),
-//						QBrush(QRadialGradient(10, 10, 20)));
 	painter->drawRoundedRect(0, 0, boundingRect().width(), boundingRect().height(), 7, 7);
 	QGraphicsTextItem::paint(painter, option, widget);
 }
