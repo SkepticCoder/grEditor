@@ -49,6 +49,7 @@ private slots:
 	void save();
 	void load();
 	void clear();
+    void callCheckGraph();
 
 private:
 	void createToolBox();
@@ -63,6 +64,7 @@ private:
 
 	QAction *newFileAction;
 	QAction *loadFileAction;
+    QAction *checkGraph;
 	QAction *saveFileAction;
 
 	QAction *exitAction;

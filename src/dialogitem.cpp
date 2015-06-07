@@ -21,7 +21,16 @@ void DialogItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setRenderHint(QPainter::Antialiasing);
 	painter->setPen(QPen(color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 
-	painter->drawRoundedRect(0, 0, boundingRect().width(), boundingRect().height(), 7, 7);
+    if(_type == Type) {
+        painter->drawRoundedRect(0, 0, boundingRect().width(), boundingRect().height(), 7, 7);
+    }
+    if(_type == Type1) {
+        painter->drawEllipse(0, 0, boundingRect().width(), boundingRect().height());
+    }
+    if(_type == Type2) {
+        painter->fillRect(-2, -2, boundingRect().width(), boundingRect().height(), QBrush(QColor(64, 64, 64, 255)));
+        painter->fillRect(0, 0, boundingRect().width(), boundingRect().height(), QBrush(QColor(128, 128, 255, 255)));
+    }
 	QGraphicsTextItem::paint(painter, option, widget);
 }
 
@@ -130,14 +139,14 @@ bool DialogItem::deserialize(std::istream& in) {
     in >> c1 >> std::dec >> x >> c2 >> y >> c3;
     if((c1 != '[')||(c2 != ':')||(c3 != ']')) {
         in.seekg(pos);
-        return false;
+        throw DFD<DialogItem, DialogJoint>::bad_node_deserialize(pos, this);
     }
     size_t size;
     in >> c1 >> size;
     in.ignore(1);
     if(c1 != '(') {
         in.seekg(pos);
-        return false;
+        throw DFD<DialogItem, DialogJoint>::bad_node_deserialize(pos, this);
     }
     char * buffer = new char [size + 1];
     in.read(buffer, size);
@@ -145,7 +154,7 @@ bool DialogItem::deserialize(std::istream& in) {
     in >> c1 >> c2;
     if((c1 != ')')||(c2 != '}')) {
         in.seekg(pos);
-        return false;
+        throw DFD<DialogItem, DialogJoint>::bad_node_deserialize(pos, this);
     }
     this->setPos(x, y);
     this->setPlainText(str.c_str());

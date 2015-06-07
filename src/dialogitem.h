@@ -22,7 +22,7 @@ class DialogItem : public QGraphicsTextItem, public iserializable
 	Q_OBJECT
 
 public:
-	enum { Type = UserType + 3 };
+    enum { Type = UserType + 5, Type1, Type2, Type3 };
 
     DialogItem(QGraphicsItem *parent = 0);
 
@@ -35,7 +35,7 @@ public:
 	void removeJoint(DialogJoint *joint);
     void removeJoints();
 
-	int type() const { return Type; }
+    int type() const { return _type; }
 
     // myId accessors
     void setId(const quint32 &id) { myId = id; }
@@ -44,6 +44,7 @@ public:
 
     QList<DialogJoint *> inputs;
     QList<DialogJoint *> outputs;
+    int _type = Type;
 signals:
 	void lostFocus(DialogItem *item);
 	void selectedChange(QGraphicsItem *item);
@@ -57,7 +58,7 @@ public:
     bool deserialize(std::istream& in) override;
 private:
 	quint32 myId;
-	QPolygonF boundingBox;
+    QPolygonF boundingBox;
 };
 
 #endif

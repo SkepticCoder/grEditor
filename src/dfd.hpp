@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 #include <functional>
+#include <iostream>
 
 class iserializable {
 public:
@@ -19,6 +20,37 @@ template<class T, class U> class DFD
 public:
     class node;
     class edge;
+    class bad_serialize {
+    public:
+        typename std::ostream::streampos where;
+        bad_serialize(std::ostream::streampos where): where(where) {}
+    };
+
+    class bad_node_serialize: public bad_serialize {
+    public:
+        T* node;
+        bad_node_serialize(std::ostream::streampos where, T* node): bad_serialize(where), node(node) {}
+    };
+    class bad_edge_serialize: public bad_serialize {
+    public:
+        U* edge;
+        bad_edge_serialize(std::ostream::streampos where, U* edge): bad_serialize(where), edge(edge) {}
+    };
+    class bad_deserialize {
+    public:
+        std::ostream::streampos where;
+        bad_deserialize(std::istream::streampos where): where(where) {}
+    };
+    class bad_node_deserialize: public bad_deserialize {
+    public:
+        T* node;
+        bad_node_deserialize(std::istream::streampos where, T* node): bad_deserialize(where), node(node) {}
+    };
+    class bad_edge_deserialize: public bad_deserialize {
+    public:
+        U* edge;
+        bad_edge_deserialize(std::istream::streampos where, U* edge): bad_deserialize(where), edge(edge) {}
+    };
     using iterator = typename std::set<std::shared_ptr<DFD::node>>::iterator;
     using const_iterator = typename std::set<std::shared_ptr<DFD::node>>::const_iterator;
 
@@ -53,6 +85,12 @@ public:
     const_iterator cbegin() const { return nodes.cbegin(); }
     iterator end() { return nodes.end(); }
     const_iterator cend() const { return nodes.cend(); }
+    bool dfs() const {
+        std::set<const DFD::node*> checked_nodes;
+        std::set<const DFD::node*> visited_nodes;
+        for(auto&& i: nodes) if(i->dfs(checked_nodes, visited_nodes)) return true;
+        return false;
+    }
 private:
     std::set<std::shared_ptr<DFD::node>> nodes;
 };
@@ -85,6 +123,15 @@ public:
     }
     bool deserialize(std::istream& in) {
         return value->deserialize(in);
+    }
+    bool dfs(std::set<const node*>& checked_nodes, std::set<const node*>& visited_nodes) const {
+        if(checked_nodes.find(this) != checked_nodes.end()) return false;
+        if(visited_nodes.find(this) != visited_nodes.end()) return true;
+        visited_nodes.insert(this);
+        for(auto&& i: out_edges) if(i->end().dfs(checked_nodes, visited_nodes)) return true;
+        visited_nodes.erase(this);
+        checked_nodes.insert(this);
+        return false;
     }
 };
 

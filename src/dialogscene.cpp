@@ -2,6 +2,7 @@
 #include <QtGui>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
 #include <QInputDialog>
+#include <QtWidgets/QMessageBox>
 
 #include "dialogscene.h"
 #include "dialogjoint.h"
@@ -24,7 +25,7 @@ DialogScene::DialogScene(QMenu *itemMenu, QObject *parent)
 DialogItem *DialogScene::getItemById(quint32 id)
 {
 	foreach (QGraphicsItem *item, this->items()) {
-		if (item->type() == DialogItem::Type) {
+        if (item->type() == DialogItem::Type) {
 			DialogItem *textItem = qgraphicsitem_cast<DialogItem *>(item);
 			if (textItem->id() == id) return textItem;
 		}
@@ -36,7 +37,7 @@ void DialogScene::setFont(const QFont &font)
 {
 	myFont = font;
 
-	if (isItemChange(DialogItem::Type)) {
+    if (isItemChange(DialogItem::Type)) {
 		QGraphicsTextItem *item =
             qgraphicsitem_cast<DialogItem *>(selectedItems().first());
 		if (item)
@@ -101,8 +102,7 @@ void DialogScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
         textItem->setId(myIdCounter++);
 
         emit textInserted(textItem);
-	default:
-		;
+        break;
 	}
 	QGraphicsScene::mousePressEvent(mouseEvent);
 }
@@ -131,8 +131,8 @@ void DialogScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 		delete line;
 
 		if (startItems.count() > 0 && endItems.count() > 0 &&
-				startItems.first()->type() == DialogItem::Type &&
-				endItems.first()->type() == DialogItem::Type &&
+                startItems.first()->type() == DialogItem::Type &&
+                endItems.first()->type() == DialogItem::Type &&
 				startItems.first() != endItems.first()) {
 			DialogItem *startItem =
 				qgraphicsitem_cast<DialogItem *>(startItems.first());
@@ -156,7 +156,7 @@ void DialogScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 bool DialogScene::isItemChange(int type)
 {
 	foreach (QGraphicsItem *item, selectedItems()) {
-		if (item->type() == type)
+        if (item->type() == type)
 			return true;
 	}
 	return false;

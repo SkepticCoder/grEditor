@@ -169,7 +169,7 @@ bool DialogJoint::deserialize(std::istream& in) {
     in >> c1;
     if(c1 != '}') {
         in.seekg(pos);
-        return false;
+        throw DFD<DialogItem, DialogJoint>::bad_edge_deserialize(pos, this);
     }
     label = str.c_str();
     DialogItem *startItem = scene->getItemById(id1);

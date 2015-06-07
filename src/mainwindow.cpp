@@ -131,8 +131,7 @@ void MainWindow::handleFontChange()
 
 void MainWindow::itemSelected(DialogItem *textItem)
 {
-	QFont font = textItem->font();
-	QColor color = textItem->defaultTextColor();
+    QFont font = textItem->font();
 	fontCombo->setCurrentFont(font);
     fontSizeCombo->setEditText(QString().setNum(font.pointSize()));
 }
@@ -214,6 +213,12 @@ void MainWindow::createToolBox()
 	toolBox->addItem(backgroundWidget, tr("Global Properties"));
 }
 
+void MainWindow::callCheckGraph() {
+    QMessageBox msgBox(QMessageBox::Information, "Graph info", scene->dfd.dfs()?"acyclic":"not acyclic");
+    msgBox.addButton("Ok" ,QMessageBox::AcceptRole);
+    msgBox.exec();
+}
+
 void MainWindow::createActions()
 {
 	deleteAction = new QAction(QIcon(":/res/~delete.png"), tr("&Delete"), this);
@@ -236,6 +241,10 @@ void MainWindow::createActions()
 	loadFileAction->setStatusTip(tr("Loads a dialog"));
 	connect(loadFileAction, SIGNAL(triggered()), this, SLOT(load()));
 
+    checkGraph = new QAction(QIcon(":/res/~open.png"), tr("&CheckGraph"), this);
+    checkGraph->setStatusTip(tr("Check graph"));
+    connect(checkGraph, SIGNAL(triggered()), this, SLOT(callCheckGraph()));
+
 	saveFileAction = new QAction(QIcon(":/res/~save.png"), tr("&Save"), this);
 	saveFileAction->setShortcut(tr("CTRL+S"));
 	saveFileAction->setStatusTip(tr("Saves a dialog"));
@@ -256,7 +265,7 @@ void MainWindow::createMenus()
 	fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(newFileAction);
 	fileMenu->addAction(loadFileAction);
-	fileMenu->addAction(saveFileAction);
+    fileMenu->addAction(saveFileAction);
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAction);
 
@@ -274,10 +283,8 @@ void MainWindow::createToolbars()
 	editToolBar = addToolBar(tr("Edit"));
 	editToolBar->addAction(newFileAction);
 	editToolBar->addAction(loadFileAction);
-	editToolBar->addAction(saveFileAction);
-//	editToolBar->addSeparator();
-//	editToolBar->addAction(deleteAction);
-//	editToolBar->addAction(isolateAction);
+    editToolBar->addAction(saveFileAction);
+    editToolBar->addAction(checkGraph);
 
 	pointerButton = new QToolButton;
 	pointerButton->setCheckable(true);
@@ -312,12 +319,9 @@ void MainWindow::createToolbars()
     pointerToolbar->addWidget(customButton);
 }
 
-
-
 void MainWindow::save()
 {
-	QFileDialog::Options options;
-//	options |= QFileDialog::DontUseNativeDialog;
+    QFileDialog::Options options;
 	QString selectedFilter = "*.dlg";
 	QString fileName = QFileDialog::getSaveFileName(this,
 					   tr("Save a dialog"),
