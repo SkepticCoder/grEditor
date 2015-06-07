@@ -4,6 +4,7 @@
 
 #include <QtWidgets/QGraphicsScene>
 #include "dialogitem.h"
+#include "dialogjoint.h"
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneMouseEvent;
@@ -33,7 +34,7 @@ public:
     quint32 idCounter() const { return myIdCounter; }
 
 	DialogItem *getItemById(quint32 id);
-
+    DFD<DialogItem, DialogJoint> dfd;
 public slots:
     void setMode(Mode mode);
     void editorLostFocus(DialogItem *item);
@@ -56,8 +57,6 @@ private:
     QPointF startPoint;
     QGraphicsLineItem *line;
     QFont myFont;
-    DialogItem *textItem;
-    DFD<QString, QString> dfd;
 };
 
 #endif

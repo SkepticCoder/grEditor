@@ -3,18 +3,30 @@
 
 #include "dialogjoint.h"
 #include <math.h>
+#include "dialogscene.h"
 
 const qreal Pi = 3.14;
 
-DialogJoint::DialogJoint(DialogItem *startItem, DialogItem *endItem,
+DialogJoint::DialogJoint(DialogItem *startItem, DialogItem *endItem, class DialogScene* scene,
              QGraphicsItem *parent)
-    : QGraphicsLineItem(parent)
+    : QGraphicsLineItem(parent), scene(scene)
 {
 	myStartItem = startItem;
 	myEndItem = endItem;
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
 	myColor = QColor(50, 70, 200, 35);
 	setPen(QPen(myColor, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+}
+
+DialogJoint::DialogJoint(class DialogScene* scene,
+             QGraphicsItem *parent)
+    : QGraphicsLineItem(parent), scene(scene)
+{
+    myStartItem = nullptr;
+    myEndItem = nullptr;
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
+    myColor = QColor(50, 70, 200, 35);
+    setPen(QPen(myColor, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
 QRectF DialogJoint::boundingRect() const
@@ -62,17 +74,16 @@ void DialogJoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
         QPointF point = path.pointAtPercent(0.5);
         qreal angle = path.angleAtPercent(0.5);
         QFontMetrics fm(painter->font());
-        QString str = "edge";
 
         painter->save();
         if((angle > 90) && (angle < 270)) {
             painter->translate(point);
             painter->rotate(180 - angle);
-            painter->drawText(QPoint(-fm.width(str) / 2, -myPen.width()), str);
+            painter->drawText(QPoint(-fm.width(label) / 2, -myPen.width()), label);
         } else {
             painter->translate(point);
             painter->rotate(-angle);
-            painter->drawText(QPoint(-fm.width(str) / 2, -myPen.width()), str);
+            painter->drawText(QPoint(-fm.width(label) / 2, -myPen.width()), label);
         }
 
         painter->restore();
@@ -126,4 +137,51 @@ QPointF DialogJoint::getIntersection(QLineF line, QPolygonF poly, QPointF offset
 		p1 = p2;
 	}
 	return intersectPoint;
+}
+
+void DialogJoint::serialize(std::ostream& out) const {
+    out << '{';
+    out << std::hex << (quint32)0x216c6e6b << ":" << (quint32)myStartItem->id() << '-' << (quint32)myEndItem->id();
+    std::string str = label.toStdString();
+    out << std::dec << ":" << str.size() << ' ' << str;
+    out << '}';
+}
+
+bool DialogJoint::deserialize(std::istream& in) {
+    char c1, c2, c3, c4;
+    quint32 magic, id1, id2;
+    std::istream::pos_type pos = in.tellg();
+    in >> std::hex >> c1 >> magic >> c2 >> id1 >> c3 >> id2 >> c4;
+    if((c1 != '{')||(c2 != ':')||(c3 != '-')||(c4 != ':')) {
+        in.seekg(pos);
+        return false;
+    }
+    if(magic != (quint32)0x216c6e6b) {
+        in.seekg(pos);
+        return false;
+    }
+    size_t size;
+    in >> std::dec >> size;
+    in.ignore(1);
+    char * buffer = new char [size + 1];
+    in.read(buffer, size);
+    std::string str(buffer, size);
+    in >> c1;
+    if(c1 != '}') {
+        in.seekg(pos);
+        return false;
+    }
+    label = str.c_str();
+    DialogItem *startItem = scene->getItemById(id1);
+    DialogItem *endItem = scene->getItemById(id2);
+
+    this->myStartItem = startItem;
+    this->myEndItem = endItem;
+    startItem->addJointOut(this);
+    endItem->addJointIn(this);
+    scene->dfd.linkNodes(*startItem->node, *endItem->node, this);
+    this->setZValue(-1000.0);
+    scene->addItem(this);
+    this->updatePosition();
+    return true;
 }

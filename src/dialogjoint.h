@@ -17,14 +17,18 @@ class QPainterPath;
 QT_END_NAMESPACE
 
 //! [0]
-class DialogJoint : public QGraphicsLineItem
+
+class DialogItem;
+
+class DialogJoint : public QGraphicsLineItem, public iserializable
 {
 public:
     enum { Type = UserType + 4 };
 
-    DialogJoint(DialogItem *startItem, DialogItem *endItem,
+    DialogJoint(DialogItem *startItem, DialogItem *endItem, class DialogScene* scene,
       QGraphicsItem *parent = 0);
-
+    DialogJoint(class DialogScene* scene,
+      QGraphicsItem *parent = 0);
     int type() const
         { return Type; }
     QRectF boundingRect() const;
@@ -36,13 +40,16 @@ public:
     DialogItem *endItem() const
         { return myEndItem; }
 
-
+    DialogItem* getStart() { return myStartItem; }
+    DialogItem* getEnd() { return myEndItem; }
+    QString label;
 public slots:
     void updatePosition();
 
-protected:
+public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-
+    void serialize(std::ostream& out) const override;
+    bool deserialize(std::istream& in) override;
 private:
 	QPointF getIntersection(QLineF line, QPolygonF poly, QPointF offset);
 
@@ -50,6 +57,7 @@ private:
     DialogItem *myEndItem;
     QColor myColor;
     QPolygonF arrowHead;
+    class DialogScene* scene;
 };
 //! [0]
 

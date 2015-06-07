@@ -21,6 +21,8 @@
 #include "dialogjoint.h"
 #include "dialogscene.h"
 
+#include <fstream>
+
 const int InsertTextButton = 10;
 
 MainWindow::MainWindow()
@@ -32,9 +34,7 @@ MainWindow::MainWindow()
 	scene = new DialogScene(itemMenu, this);
 	scene->setSceneRect(QRectF(0, 0, 5000, 5000));
 	connect(scene, SIGNAL(textInserted(QGraphicsTextItem*)),
-			this, SLOT(textInserted(QGraphicsTextItem*)));
-    /* connect(scene, SIGNAL(itemSelected(QGraphicsTextItem*)),
-            this, SLOT(itemSelected(QGraphicsTextItem*))); */
+            this, SLOT(textInserted(QGraphicsTextItem*)));
 	createToolbars();
 
 	scene->setBackgroundBrush(QPixmap(":/res/bg.png"));
@@ -60,8 +60,7 @@ void MainWindow::deleteItem()
 			scene->removeItem(item);
 			DialogJoint *joint = qgraphicsitem_cast<DialogJoint *>(item);
 			joint->startItem()->removeJoint(joint);
-			joint->endItem()->removeJoint(joint);
-			delete item;
+            joint->endItem()->removeJoint(joint);
 		}
 	}
 
@@ -69,8 +68,7 @@ void MainWindow::deleteItem()
 		if (item->type() == DialogItem::Type) {
 			qgraphicsitem_cast<DialogItem *>(item)->removeJoints();
 		}
-		scene->removeItem(item);
-		delete item;
+        scene->removeItem(item);
 	}
 }
 
@@ -136,10 +134,7 @@ void MainWindow::itemSelected(DialogItem *textItem)
 	QFont font = textItem->font();
 	QColor color = textItem->defaultTextColor();
 	fontCombo->setCurrentFont(font);
-	fontSizeCombo->setEditText(QString().setNum(font.pointSize()));
-//	boldAction->setChecked(font.weight() == QFont::Bold);
-//	italicAction->setChecked(font.italic());
-//	underlineAction->setChecked(font.underline());
+    fontSizeCombo->setEditText(QString().setNum(font.pointSize()));
 }
 
 void MainWindow::about()
@@ -150,35 +145,8 @@ void MainWindow::about()
 
 void MainWindow::createToolBox()
 {
-//	nodeOptionsGroup = new QButtonGroup(this);
-//	nodeOptionsGroup->setExclusive(false);
-//	connect(nodeOptionsGroup, SIGNAL(buttonClicked(int)),
-//			this, SLOT(buttonGroupClicked(int)));
-//	QGridLayout *layout = new QGridLayout;
 
-//	QToolButton *textButton = new QToolButton;
-//	textButton->setCheckable(true);
-//	nodeOptionsGroup->addButton(textButton, InsertTextButton);
-//	textButton->setIcon(QIcon(QPixmap(":/res/textpointer.png")
-//							  .scaled(30, 30)));
-//	QGridLayout *textLayout = new QGridLayout;
-//	textLayout->addWidget(textButton, 0, 0, Qt::AlignHCenter);
-//	textLayout->addWidget(new QLabel(tr("Text")), 1, 0, Qt::AlignCenter);
-//	QWidget *textWidget = new QWidget;
-//	textWidget->setLayout(textLayout);
-//	layout->addWidget(textWidget, 1, 1);
-//	layout->addWidget(textButton, 1, 1);
-
-//	layout->setRowStretch(2, 10);
-//	layout->setColumnStretch(2, 10);
-
-	QWidget *itemWidget = new QWidget;
-//	itemWidget->setLayout(layout);
-
-
-
-
-
+    QWidget *itemWidget = new QWidget;
 	QGridLayout *backgroundLayout = new QGridLayout;
 
 	// Font combo
@@ -360,32 +328,11 @@ void MainWindow::save()
 
 	if (!fileName.isEmpty()) {
 		myFileName = fileName;
-		QFile file(myFileName);
-		file.open(QIODevice::WriteOnly);
-		QDataStream out(&file);
 
-		out << (quint32)0x21646c67; // header
-		out << (quint32)100; // version
-
-		foreach (QGraphicsItem *item, scene->items()) {
-			if (item->type() == DialogItem::Type) {
-				DialogItem *textItem = qgraphicsitem_cast<DialogItem *>(item);
-				out << (quint32)0x216f626a; // an "item" magic number
-				out << (quint32)textItem->id();
-				out << QPointF(textItem->pos());
-				out << QString(textItem->toPlainText());
-			}
-		}
-
-		foreach (QGraphicsItem *item, scene->items()) {
-			if (item->type() == DialogJoint::Type) {
-				DialogJoint *joint = qgraphicsitem_cast<DialogJoint *>(item);
-				out << (quint32)0x216c6e6b; // a "joint"
-				out << (quint32)joint->startItem()->id();
-				out << (quint32)joint->endItem()->id();
-			}
-		}
-
+        std::ofstream file(myFileName.toStdString());
+        file << (quint32)0x21646c67; // header
+        file << ' ' << (quint32)100; // version
+        scene->dfd.serialize(file);
 		file.close();
 	}
 }
@@ -402,80 +349,57 @@ void MainWindow::load()
 					   options);
 
 	if (!fileName.isEmpty()) {
+        quint32 header, version;
 		myFileName = fileName;
-		QFile file(myFileName);
-		file.open(QIODevice::ReadOnly);
-		QDataStream in(&file);    // read the data serialized from the file
+        std::ifstream file(myFileName.toStdString());
 
-		QString text;
-		QPointF pos;
-		quint32 header, version, magic, id1, id2, idCounter = 0;
+        clear();
 
-		clear();
+        file >> header;
+        if (header != 0x21646c67) {
+            QMessageBox msgBox(QMessageBox::Warning,
+                                tr("Read error"),
+                                tr("<p><b>Wrong header.</b></p><p>Not a valid file format, yo.</p>"), 0, this);
+            msgBox.addButton(tr("Oh, dear..."), QMessageBox::AcceptRole);
+            msgBox.exec();
+            return;
+        }
 
-		in >> header;
-		if (header != 0x21646c67) {
-			QMessageBox msgBox(QMessageBox::Warning,
-								tr("Read error"),
-								tr("<p><b>Wrong header.</b></p><p>Not a valid file format, yo.</p>"), 0, this);
-			msgBox.addButton(tr("Oh, dear..."), QMessageBox::AcceptRole);
-			msgBox.exec();
-			return;
-		}
+        file >> version;
+        if (version > 100) {
+            QMessageBox msgBox(QMessageBox::Warning,
+                                tr("Read error"),
+                                tr("<p>Wrong file version!</p><p>File version is > 1.00. I cannot read this.</p>"), 0, this);
+            msgBox.addButton(tr("Oh, dear..."), QMessageBox::AcceptRole);
+            msgBox.exec();
+            return;
+        } else if (version < 100) {
+            QMessageBox msgBox(QMessageBox::Warning,
+                                tr("Read error"),
+                                tr("<p>Wrong file version!</p><p>File version is < 1.00. This should <b>never happen</b>, maybe the file is broken?</p>"), 0, this);
+            msgBox.addButton(tr("Oh, dear..."), QMessageBox::AcceptRole);
+            msgBox.exec();
+            return;
+        }
 
-		in >> version;
-		if (version > 100) {
-			QMessageBox msgBox(QMessageBox::Warning,
-								tr("Read error"),
-								tr("<p>Wrong file version!</p><p>File version is > 1.00. I cannot read this.</p>"), 0, this);
-			msgBox.addButton(tr("Oh, dear..."), QMessageBox::AcceptRole);
-			msgBox.exec();
-			return;
-		} else if (version < 100) {
-			QMessageBox msgBox(QMessageBox::Warning,
-								tr("Read error"),
-								tr("<p>Wrong file version!</p><p>File version is < 1.00. This should <b>never happen</b>, maybe the file is broken?</p>"), 0, this);
-			msgBox.addButton(tr("Oh, dear..."), QMessageBox::AcceptRole);
-			msgBox.exec();
-			return;
-		}
+        auto createNode = [&](DFD<DialogItem, DialogJoint>::node* n) {
+            DialogItem *textItem = new DialogItem();
+            textItem->node = n;
+            textItem->setFont(scene->font());
+            textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
+            textItem->setZValue(1000.0);
+            connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
+            scene->addItem(textItem);
+            return textItem;
+        };
 
+        auto createEdge = [&]() {
+            DialogJoint *joint = new DialogJoint(scene);
+            return joint;
+        };
 
-		while (!in.atEnd()) {
-			in >> magic; // extract the magic number
-			if (magic == (quint32)0x216f626a) {
-				in >> id1 >> pos >> text;
-
-				DialogItem *textItem = new DialogItem();
-				textItem->setFont(scene->font());
-				textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
-				textItem->setZValue(1000.0);
-				connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
-//				connect(textItem, SIGNAL(selectedChange(QGraphicsItem*)), this, SIGNAL(itemSelected(QGraphicsItem*)));
-				scene->addItem(textItem);
-				textItem->setPos(pos);
-				textItem->setPlainText(text);
-				textItem->setId(id1);
-				if (idCounter < id1) idCounter = id1;
-				emit textInserted(textItem);
-
-			} else if (magic == (quint32)0x216c6e6b) {
-				in >> id1 >> id2;
-
-				DialogItem *startItem = scene->getItemById(id1);
-				DialogItem *endItem = scene->getItemById(id2);
-
-				DialogJoint *joint = new DialogJoint(startItem, endItem);
-				startItem->addJoint(joint);
-//				endItem->addJoint(joint);
-				joint->setZValue(-1000.0);
-				scene->addItem(joint);
-				joint->updatePosition();
-			}
-		}
-
-		scene->setIdCounter(idCounter + 1);
-
+        scene->dfd.deserialize(file, createNode, createEdge);
+        scene->setIdCounter(10000);
 		file.close();
 	}
 }

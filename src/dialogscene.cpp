@@ -1,6 +1,7 @@
 
 #include <QtGui>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
+#include <QInputDialog>
 
 #include "dialogscene.h"
 #include "dialogjoint.h"
@@ -10,8 +11,7 @@ DialogScene::DialogScene(QMenu *itemMenu, QObject *parent)
 {
 	myItemMenu = itemMenu;
 	myMode = MoveItem;
-	line = 0;
-	textItem = 0;
+    line = 0;
 
 	myFont = QFont( "tahoma" );
 	myFont.setPointSize(10);
@@ -20,16 +20,6 @@ DialogScene::DialogScene(QMenu *itemMenu, QObject *parent)
 	myFont.setUnderline(false);
 
 }
-
-//void DialogScene::setTextColor(const QColor &color)
-//{
-//	myTextColor = color;
-//	if (isItemChange(DialogItem::Type)) {
-//		DialogItem *item =
-//			qgraphicsitem_cast<DialogItem *>(selectedItems().first());
-//		item->setDefaultTextColor(myTextColor);
-//	}
-//}
 
 DialogItem *DialogScene::getItemById(quint32 id)
 {
@@ -48,8 +38,7 @@ void DialogScene::setFont(const QFont &font)
 
 	if (isItemChange(DialogItem::Type)) {
 		QGraphicsTextItem *item =
-			qgraphicsitem_cast<DialogItem *>(selectedItems().first());
-		//At this point the selection can change so the first selected item might not be a DialogItem
+            qgraphicsitem_cast<DialogItem *>(selectedItems().first());
 		if (item)
 			item->setFont(myFont);
 	}
@@ -74,6 +63,7 @@ void DialogScene::editorLostFocus(DialogItem *item)
 
 void DialogScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
+    DialogItem* textItem;
 	if (mouseEvent->button() != Qt::LeftButton) return;
 
 	switch (myMode) {
@@ -86,14 +76,13 @@ void DialogScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 		break;
 
 	case InsertText:
-		textItem = new DialogItem();
+        textItem = new DialogItem();
+        textItem->node = &dfd.createNode(textItem);
 		textItem->setFont(myFont);
 		textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
 		textItem->setZValue(1000.0);
-		connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
-//		connect(textItem, SIGNAL(selectedChange(QGraphicsItem*)), this, SIGNAL(itemSelected(QGraphicsItem*)));
-		addItem(textItem);
-//		textItem->setDefaultTextColor(myTextColor);
+        connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
+        addItem(textItem);
 		textItem->setPos(mouseEvent->scenePos());
 		textItem->setId(myIdCounter++);
 
@@ -101,6 +90,7 @@ void DialogScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
         break;
     case InsertCustom:
         textItem = new DialogItem();
+        textItem->node = &dfd.createNode(textItem);
         textItem->setFont(myFont);
         textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
         textItem->setZValue(1000.0);
@@ -148,9 +138,11 @@ void DialogScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 				qgraphicsitem_cast<DialogItem *>(startItems.first());
 			DialogItem *endItem =
 				qgraphicsitem_cast<DialogItem *>(endItems.first());
-			DialogJoint *joint = new DialogJoint(startItem, endItem);
-			startItem->addJoint(joint);
-//			endItem->addJoint(joint);
+            DialogJoint *joint = new DialogJoint(startItem, endItem, this);
+            startItem->addJointOut(joint);
+            endItem->addJointIn(joint);
+            dfd.linkNodes(*startItem->node, *endItem->node, joint);
+            joint->label = QInputDialog::getText(nullptr, QString("Enter edge name"), QString("name:"));
 			joint->setZValue(-1000.0);
 			addItem(joint);
 			joint->updatePosition();
