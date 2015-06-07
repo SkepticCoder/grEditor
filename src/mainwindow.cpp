@@ -241,7 +241,7 @@ void MainWindow::createActions()
 	loadFileAction->setStatusTip(tr("Loads a dialog"));
 	connect(loadFileAction, SIGNAL(triggered()), this, SLOT(load()));
 
-    checkGraph = new QAction(QIcon(":/res/~open.png"), tr("&CheckGraph"), this);
+    checkGraph = new QAction(QIcon(":/res/symbol_check.png"), tr("&CheckGraph"), this);
     checkGraph->setStatusTip(tr("Check graph"));
     connect(checkGraph, SIGNAL(triggered()), this, SLOT(callCheckGraph()));
 
@@ -302,14 +302,24 @@ void MainWindow::createToolbars()
 	linePointerButton->setStatusTip(tr("Link dialog nodes"));
     QToolButton *customButton = new QToolButton;
     customButton->setCheckable(true);
-    customButton->setIcon(QIcon(":/res/~insert.png"));
-    customButton->setStatusTip(tr("Insert custom dialog node"));
+    customButton->setIcon(QIcon(":/res/User-icon.png"));
+    customButton->setStatusTip(tr("Insert user dialog node"));
+    QToolButton *databaseButton = new QToolButton;
+    databaseButton->setCheckable(true);
+    databaseButton->setIcon(QIcon(":/res/database.png"));
+    databaseButton->setStatusTip(tr("Insert database dialog node"));
+    QToolButton *userProccessButton = new QToolButton;
+    userProccessButton->setCheckable(true);
+    userProccessButton->setIcon(QIcon(":/res/user_process.png"));
+    userProccessButton->setStatusTip(tr("Insert user dialog node"));
 
 	pointerTypeGroup = new QButtonGroup(this);
 	pointerTypeGroup->addButton(nodeButton, int(DialogScene::InsertText));
 	pointerTypeGroup->addButton(pointerButton, int(DialogScene::MoveItem));
 	pointerTypeGroup->addButton(linePointerButton, int(DialogScene::InsertLine));
     pointerTypeGroup->addButton(customButton, int(DialogScene::InsertCustom));
+    pointerTypeGroup->addButton(databaseButton, int(DialogScene::DataBaseItem));
+    pointerTypeGroup->addButton(userProccessButton, int(DialogScene::UserProccessItem));
 	connect(pointerTypeGroup, SIGNAL(buttonClicked(int)), this, SLOT(pointerGroupClicked(int)));
 
 	pointerToolbar = addToolBar(tr("Pointer type"));
@@ -317,6 +327,8 @@ void MainWindow::createToolbars()
 	pointerToolbar->addWidget(nodeButton);
 	pointerToolbar->addWidget(linePointerButton);
     pointerToolbar->addWidget(customButton);
+    pointerToolbar->addWidget(databaseButton);
+    pointerToolbar->addWidget(userProccessButton);
 }
 
 void MainWindow::save()

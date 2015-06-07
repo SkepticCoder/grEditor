@@ -21,7 +21,7 @@ class DialogScene : public QGraphicsScene
     Q_OBJECT
 
 public:
-    enum Mode { InsertItem, InsertLine, InsertText, MoveItem, InsertCustom };
+    enum Mode { InsertItem, InsertLine, InsertText, MoveItem, InsertCustom, DataBaseItem, UserProccessItem };
     enum SaveResult { Ok, BadHeader, BadVersion, BadContent };
 
     DialogScene(QMenu *itemMenu, QObject *parent = 0);

@@ -95,7 +95,35 @@ void DialogScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
         textItem->setFont(myFont);
         textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
         textItem->setZValue(1000.0);
-        textItem->setPlainText("custom item");
+        textItem->setPlainText("user");
+        connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
+        addItem(textItem);
+        textItem->setPos(mouseEvent->scenePos());
+        textItem->setId(myIdCounter++);
+
+        emit textInserted(textItem);
+        break;
+    case UserProccessItem:
+        textItem = new DialogItem();
+        textItem->node = &dfd.createNode(textItem);
+        textItem->setFont(myFont);
+        textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
+        textItem->setZValue(1000.0);
+        textItem->setPlainText("user proccess");
+        connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
+        addItem(textItem);
+        textItem->setPos(mouseEvent->scenePos());
+        textItem->setId(myIdCounter++);
+
+        emit textInserted(textItem);
+        break;
+    case DataBaseItem:
+        textItem = new DialogItem();
+        textItem->node = &dfd.createNode(textItem);
+        textItem->setFont(myFont);
+        textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
+        textItem->setZValue(1000.0);
+        textItem->setPlainText("data base");
         connect(textItem, SIGNAL(lostFocus(DialogItem*)), this, SLOT(editorLostFocus(DialogItem*)));
         addItem(textItem);
         textItem->setPos(mouseEvent->scenePos());
