@@ -49,7 +49,7 @@ MainWindow::MainWindow()
 	widget->setLayout(layout);
 
 	setCentralWidget(widget);
-	setWindowTitle(tr("Dialog Editor"));
+	setWindowTitle(tr("Проектировщик B2C процессов"));
 	setUnifiedTitleAndToolBarOnMac(true);
 }
 
@@ -176,12 +176,12 @@ void MainWindow::createToolBox()
 
 	// Font configuration frame:
 	QGridLayout *fontLayout = new QGridLayout;
-	fontLayout->addWidget(new QLabel(tr("Face:")), 0, 0, Qt::AlignLeft);
+	fontLayout->addWidget(new QLabel(tr("Шрифт:")), 0, 0, Qt::AlignLeft);
 	fontLayout->addWidget(fontCombo, 1, 0, Qt::AlignLeft);
-	fontLayout->addWidget(new QLabel(tr("Size:")), 2, 0, Qt::AlignLeft);
+	fontLayout->addWidget(new QLabel(tr("Размер:")), 2, 0, Qt::AlignLeft);
 	fontLayout->addWidget(fontSizeCombo, 3, 0, Qt::AlignLeft);
 
-	QGroupBox *fontGroup = new QGroupBox(tr("Font configuration:"));
+	QGroupBox *fontGroup = new QGroupBox(tr("Настройки шрифта:"));
 	fontGroup->setFlat(true);
 	fontGroup->setLayout(fontLayout);
 
@@ -190,9 +190,9 @@ void MainWindow::createToolBox()
 
 	// Scene view frame:
 	QGridLayout *viewLayout = new QGridLayout;
-	viewLayout->addWidget(new QLabel(tr("Scale:")), 0, 0, Qt::AlignLeft);
+	viewLayout->addWidget(new QLabel(tr("Масштаб:")), 0, 0, Qt::AlignLeft);
 	viewLayout->addWidget(sceneScaleCombo, 1, 0, Qt::AlignLeft);
-	QGroupBox *viewGroup = new QGroupBox(tr("Scene view:"));
+	QGroupBox *viewGroup = new QGroupBox(tr("Область редактирования:"));
 	viewGroup->setFlat(true);
 	viewGroup->setLayout(viewLayout);
 
@@ -209,12 +209,12 @@ void MainWindow::createToolBox()
 	toolBox = new QToolBox;
 	toolBox->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
 	toolBox->setMinimumWidth(212);
-	toolBox->addItem(itemWidget, tr("Node Properties"));
-	toolBox->addItem(backgroundWidget, tr("Global Properties"));
+	// toolBox->addItem(itemWidget, tr("Node Properties"));
+	toolBox->addItem(backgroundWidget, tr("Настройки"));
 }
 
 void MainWindow::callCheckGraph() {
-    QMessageBox msgBox(QMessageBox::Information, "Graph info", scene->dfd.dfs()?"acyclic":"not acyclic");
+    QMessageBox msgBox(QMessageBox::Information, "Graph info", scene->dfd.dfs()?"Цикличный процесс":"Ацикличный процесс");
     msgBox.addButton("Ok" ,QMessageBox::AcceptRole);
     msgBox.exec();
 }
